@@ -1,0 +1,69 @@
+<div class="form-container" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <h2>{{ currentLang === 'ar' ? 'طلب إضافة مطعم / مطبخ منزلي' : 'Register Restaurant / Home Kitchen' }}</h2>
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label>{{ currentLang === 'ar' ? 'اسم المطعم / المطبخ' : 'Restaurant Name' }}</label>
+      <input type="text" [(ngModel)]="restaurant.name" name="name" required>
+    </div>
+
+    <div class="form-group">
+      <label>{{ currentLang === 'ar' ? 'نوع النشاط' : 'Type' }}</label>
+      <select [(ngModel)]="restaurant.type" name="type">
+        <option value="restaurant">{{ currentLang === 'ar' ? 'مطعم' : 'Restaurant' }}</option>
+        <option value="home_kitchen">{{ currentLang === 'ar' ? 'أكل بيتي' : 'Home Kitchen' }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>{{ currentLang === 'ar' ? 'المطبخ / الدولة' : 'Cuisine' }}</label>
+      <select [(ngModel)]="restaurant.cuisine" name="cuisine">
+        <option value="مصري">مصري</option>
+        <option value="سوري">سوري</option>
+        <option value="لبناني">لبناني</option>
+        <option value="فلسطيني">فلسطيني</option>
+        <option value="يمني">يمني</option>
+        <option value="سعودي">سعودي</option>
+        <option value="جزائري">جزائري</option>
+        <option value="أردني">أردني</option>
+        <option value="مغربي">مغربي</option>
+        <option value="إيطالي">إيطالي</option>
+        <option value="ياباني">ياباني</option>
+        <option value="صيني">صيني</option>
+        <option value="كوري">كوري</option>
+        <option value="هندي">هندي</option>
+        <option value="تركي">تركي</option>
+        <option value="أمريكي">أمريكي</option>
+        <option value="مكسيكي">مكسيكي</option>
+        <option value="أخرى">أخرى</option>
+      </select>
+    </div>
+
+    @if (restaurant.cuisine === 'أخرى') {
+    <div class="form-group">
+      <label>{{ currentLang === 'ar' ? 'اكتب اسم الدولة أو المطبخ' : 'Enter Country or Cuisine Name' }}</label>
+      <input type="text" [(ngModel)]="restaurant.customCuisine" name="customCuisine" required>
+    </div>
+    }
+
+    <div class="form-group">
+      <label>{{ currentLang === 'ar' ? 'صورة شهادة الصحة (مطلوبة للمفتش)' : 'Health Certificate Image (Required)'
+        }}</label>
+      <input type="file" (change)="onFileSelected($event)" accept="image/*" required>
+    </div>
+
+    <div class="form-group">
+      <label>{{ currentLang === 'ar' ? 'العنوان / المحافظة' : 'Location' }}</label>
+      <input type="text" [(ngModel)]="restaurant.location" name="location" required>
+    </div>
+
+    <div class="form-group">
+      <label>{{ currentLang === 'ar' ? 'رقم الهاتف للتواصل' : 'Phone Number' }}</label>
+      <input type="tel" [(ngModel)]="restaurant.phone" name="phone" required>
+    </div>
+
+    <button type="submit" class="submit-btn">
+      {{ currentLang === 'ar' ? 'إرسال الطلب للمراجعة' : 'Submit Request' }}
+    </button>
+  </form>
+</div>

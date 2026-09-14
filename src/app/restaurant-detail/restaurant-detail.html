@@ -1,0 +1,125 @@
+<div class="restaurant-page bg-light pb-5" dir="rtl" *ngIf="restaurant">
+  <!-- صورة الغلاف وتفاصيل المطعم في الهيدر -->
+  <div class="header-banner position-relative" [style.background-image]="'url(' + (restaurant.image || 'assets/default-banner.jpg') + ')'">
+    <div class="overlay"></div>
+    <div class="container position-relative pt-5">
+      <div class="card header-card p-4 rounded-4 shadow-sm border-0 bg-white">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+          <div>
+            <span class="badge bg-purple-light text-purple mb-2 px-3 py-2 rounded-pill fs-6">{{ restaurant.cuisine }}</span>
+            <h1 class="fw-bold mb-1 fs-2">{{ restaurant.name }}</h1>
+            <p class="text-muted mb-0"><i class="bi bi-geo-alt"></i> {{ restaurant.address }}</p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-purple rounded-pill px-4" (click)="showReviewModal = true">
+              <i class="bi bi-star"></i> قيّم الآن
+            </button>
+            <a [href]="'tel:' + restaurant.phone" class="btn btn-outline-purple rounded-pill px-4">
+              <i class="bi bi-telephone"></i> اتصل للطلب
+            </a>
+          </div>
+        </div>
+
+        <div class="row text-center mt-4 pt-3 border-top g-3">
+          <div class="col-4">
+            <div class="fw-bold fs-5 text-warning">★ {{ restaurant.rating || '4.7' }}</div>
+            <small class="text-muted">{{ restaurant.reviews?.length || 0 }} تقييم</small>
+          </div>
+          <div class="col-4 border-end border-start">
+            <div class="fw-bold fs-6">{{ restaurant.workingHours || '8:00 ص - 11:00 م' }}</div>
+            <small class="text-muted">ساعات العمل</small>
+          </div>
+          <div class="col-4">
+            <div class="fw-bold fs-6" dir="ltr">{{ restaurant.phone || '01012345678' }}</div>
+            <small class="text-muted">رقم الهاتف</small>
+          </div>
+        </div>
+
+        <p class="mt-4 text-secondary mb-0 fs-6 lh-lg">
+          {{ restaurant.description || 'أشهر محل كشري في مصر منذ عام 1950، نقدم الكشري الأصيل بالصلصة الحارة والدقة المقلية الطازجة يومياً. جودة لا تضاهى وأسعار في المتناول.' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- شريط التبويبات (Tabs) -->
+  <div class="container mt-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+      <div class="d-flex border-bottom bg-white text-center">
+        <button class="tab-btn flex-fill py-3 border-0 bg-transparent fw-bold" 
+                [class.active]="activeTab === 'menu'" 
+                (click)="activeTab = 'menu'">
+          قائمة الطعام
+        </button>
+        <button class="tab-btn flex-fill py-3 border-0 bg-transparent fw-bold" 
+                [class.active]="activeTab === 'photos'" 
+                (click)="activeTab = 'photos'">
+          الصور
+        </button>
+        <button class="tab-btn flex-fill py-3 border-0 bg-transparent fw-bold" 
+                [class.active]="activeTab === 'reviews'" 
+                (click)="activeTab = 'reviews'">
+          التقييمات
+        </button>
+      </div>
+
+      <div class="p-4 bg-white">
+        <!-- 1. قائمة الطعام (المينيو) -->
+        <div *ngIf="activeTab === 'menu'">
+          <div *ngFor="let category of objectKeys(categorizedMenu)" class="mb-5">
+            <h4 class="fw-bold mb-4 text-purple">{{ category }}</h4>
+            <div class="row g-4">
+              <div class="col-md-6" *ngFor="let item of categorizedMenu[category]">
+                <div class="card h-100 border-0 bg-light-purple p-3 rounded-4 d-flex flex-row align-items-center gap-3">
+                  <img [src]="item.imageUrl || 'assets/default-food.jpg'" class="rounded-3 menu-img" alt="{{ item.name }}">
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-baseline">
+                      <h5 class="fw-bold mb-1 fs-6">{{ item.name }}</h5>
+                      <span class="fw-bold text-purple fs-6">{{ item.price }} ج.م</span>
+                    </div>
+                    <p class="text-muted small mb-0">{{ item.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. التقييمات -->
+        <div *ngIf="activeTab === 'reviews'">
+          <button class="btn btn-outline-dashed-purple w-100 py-3 rounded-4 mb-4 fw-bold" (click)="showReviewModal = true">
+            + أضف تقييمك
+          </button>
+
+          <div class="d-flex flex-column gap-3">
+            <div *ngFor="let rev of restaurant.reviews" class="card border-0 bg-light p-3 rounded-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar-circle bg-purple text-white fw-bold">{{ rev.userName[0] }}</div>
+                  <div>
+                    <h6 class="fw-bold m-0">{{ rev.userName }}</h6>
+                    <div class="text-warning small">★ {{ rev.rating }}</div>
+                  </div>
+                </div>
+                <small class="text-muted">{{ rev.date | date:'yyyy-MM-dd' }}</small>
+              </div>
+
+              <div class="d-flex gap-2 mb-2" *ngIf="rev.tags">
+                <span *ngFor="let tag of rev.tags" class="badge bg-purple-light text-purple rounded-pill small">{{ tag }}</span>
+              </div>
+
+              <p class="text-secondary mb-0 small">{{ rev.comment }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. الصور -->
+        <div *ngIf="activeTab === 'photos'" class="row g-3">
+          <div class="col-md-4" *ngFor="let img of restaurant.gallery || [restaurant.image]">
+            <img [src]="img" class="img-fluid rounded-4 shadow-sm w-100 gallery-img" alt="معرض الصور">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

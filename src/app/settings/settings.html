@@ -1,0 +1,83 @@
+<div class="settings-page-wrapper" dir="rtl">
+  <div class="settings-container">
+    
+    <!-- زر العودة للبروفايل -->
+    <div class="settings-header">
+      <a routerLink="/profile" class="back-link">→ العودة للبروفايل</a>
+      <h2 class="settings-title">إعدادات الحساب الشخصي</h2>
+    </div>
+
+    <div class="settings-grid">
+      
+      <!-- 1. كارت تعديل البيانات الأساسية -->
+      <div class="settings-card">
+        <h3 class="card-subtitle">البيانات الشخصية</h3>
+
+        <div *ngIf="profileSuccessMessage" class="alert-success">
+          {{ profileSuccessMessage }}
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+          <div class="form-group">
+            <label>الاسم بالكامل</label>
+            <input type="text" formControlName="name" placeholder="أدخل اسمك">
+          </div>
+
+          <div class="form-group">
+            <label>البريد الإلكتروني (غير قابل للتعديل)</label>
+            <input type="email" formControlName="email" class="disabled-input">
+          </div>
+
+          <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input type="text" formControlName="phone" dir="ltr" placeholder="01012345678">
+          </div>
+
+          <div class="form-group">
+            <label>المدينة / المحافظة</label>
+            <input type="text" formControlName="city" placeholder="القاهرة">
+          </div>
+
+          <button type="submit" [disabled]="profileForm.invalid" class="btn-save">
+            حفظ التغييرات
+          </button>
+        </form>
+      </div>
+
+      <!-- 2. كارت تغيير كلمة المرور -->
+      <div class="settings-card">
+        <h3 class="card-subtitle">تغيير كلمة المرور</h3>
+
+        <div *ngIf="passwordSuccessMessage" class="alert-success">
+          {{ passwordSuccessMessage }}
+        </div>
+
+        <div *ngIf="errorMessage" class="alert-error">
+          {{ errorMessage }}
+        </div>
+
+        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+          <div class="form-group">
+            <label>كلمة المرور الحالية</label>
+            <input type="password" formControlName="currentPassword" placeholder="••••••••">
+          </div>
+
+          <div class="form-group">
+            <label>كلمة المرور الجديدة</label>
+            <input type="password" formControlName="newPassword" placeholder="••••••••">
+          </div>
+
+          <div class="form-group">
+            <label>تأكيد كلمة المرور الجديدة</label>
+            <input type="password" formControlName="confirmPassword" placeholder="••••••••">
+          </div>
+
+          <button type="submit" [disabled]="passwordForm.invalid" class="btn-secondary">
+            تحديث كلمة المرور
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

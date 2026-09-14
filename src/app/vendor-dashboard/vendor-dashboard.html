@@ -1,0 +1,73 @@
+<div class="container my-5 RTL text-right" dir="rtl">
+  <h2 class="mb-4 text-purple fw-bold">إدارة صفحة المطعم والمينيو</h2>
+
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+  <form [formGroup]="restaurantForm" (ngSubmit)="saveRestaurantDetails()">
+    
+    <!-- البيانات الأساسية -->
+    <div class="card shadow-sm p-4 mb-4 rounded-4 border-0">
+      <h4 class="fw-bold mb-3">تفاصيل المعومات العامة</h4>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">رقم الهاتف للتواصل</label>
+          <input type="text" formControlName="phone" class="form-control" placeholder="01012345678">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">ساعات العمل</label>
+          <input type="text" formControlName="workingHours" class="form-control" placeholder="8:00 ص - 11:00 م">
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">العنوان والتفاصيل</label>
+          <input type="text" formControlName="address" class="form-control" placeholder="المعادي، القاهرة">
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">وصف المطعم (عن المطعم)</label>
+          <textarea formControlName="description" class="form-control" rows="3" placeholder="أشهر محل كشري في مصر..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- إدارة المينيو -->
+    <div class="card shadow-sm p-4 mb-4 rounded-4 border-0">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold m-0">قائمة الطعام (المينيو)</h4>
+        <button type="button" class="btn btn-outline-purple" (click)="addMenuItem()">+ إضافة طبق جديد</button>
+      </div>
+
+      <div formArrayName="menuItems">
+        <div *ngFor="let item of menuItems.controls; let i=index" [formGroupName]="i" class="border p-3 mb-3 rounded-3 bg-light position-relative">
+          <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" (click)="removeMenuItem(i)">حذف</button>
+          
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">اسم الطبق</label>
+              <input type="text" formControlName="name" class="form-control" placeholder="كشري صغير">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">القسم</label>
+              <select formControlName="category" class="form-select">
+                <option value="الأطباق الرئيسية">الأطباق الرئيسية</option>
+                <option value="الإضافات">الإضافات</option>
+                <option value="المشروبات">المشروبات</option>
+                <option value="الحلويات">الحلويات</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">السعر (ج.م)</label>
+              <input type="number" formControlName="price" class="form-control" placeholder="18">
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">الوصف</label>
+              <input type="text" formControlName="description" class="form-control" placeholder="حجم فردي صغير مع صلصة وخل">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="loading" class="btn btn-purple btn-lg w-100 rounded-pill">
+      {{ loading ? 'جاري الحفظ...' : 'حفظ ونشر التعديلات' }}
+    </button>
+  </form>
+</div>

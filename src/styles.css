@@ -1,1 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  top: 0px !important;
+  position: static !important;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+@font-face {
+  font-family: 'Marhaban';
+  src: url('/assets/Marhaban.otf') format('truetype'); 
+}

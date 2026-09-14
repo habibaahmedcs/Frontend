@@ -1,0 +1,53 @@
+<div class="profile-page-wrapper" dir="rtl">
+  <div class="profile-card" *ngIf="user">
+    
+    <!-- الهيدر والصورة الشخصية -->
+    <div class="profile-header">
+      <div class="avatar-large">
+        <span>{{ userName ? userName.substring(0, 2) : '' }}</span>
+      </div>
+      <h2 class="user-fullname">{{ userName }}</h2>
+      <p class="user-email">{{ user.email }}</p>
+
+      <!-- شارة الدور (أدمن / مستخدم) -->
+      <span class="role-badge" [ngClass]="{'admin-badge': isAdmin}">
+        {{ isAdmin ? 'أدمن' : 'مستخدم' }}
+      </span>
+    </div>
+
+    <!-- شبكة البيانات الشخصية -->
+    <div class="profile-details">
+      <div class="detail-row">
+        <span class="detail-label">رقم الهاتف:</span>
+        <span class="detail-value" dir="ltr">{{ user.phone || 'غير متوفر' }}</span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">الدولة / المدينة:</span>
+        <span class="detail-value">{{ user.city || 'غير متوفر' }}</span>
+      </div>
+    </div>
+
+    <!-- الأزرار والروابط السريعة -->
+    <div class="profile-actions">
+      <!-- لوحة تحكم الأدمن تظهر فقط للأدمن -->
+      <a *ngIf="isAdmin" routerLink="/admin-dashboard" class="btn-primary-purple mb-2">
+        لوحة تحكم الأدمن
+      </a>
+
+      <a routerLink="/settings" class="btn-primary-purple">تعديل البيانات الشخصية</a>
+      
+      <!-- تنبيه حالة طلب المطعم إن وجد -->
+      <div *ngIf="myRequest" class="request-status-box">
+        <div class="status-info">
+          <span>طلب إضافة مطعم: <strong>{{ myRequest.name }}</strong></span>
+          <span class="badge-status" [class.pending]="myRequest.status === 'pending'" [class.approved]="myRequest.status === 'approved'">
+            {{ myRequest.status === 'pending' ? 'قيد المراجعة' : 'تمت الموافقة' }}
+          </span>
+        </div>
+        <a *ngIf="myRequest.status === 'approved'" routerLink="/vendor-dashboard" class="btn-link-vendor">الذهاب إلى لوحة المطعم ←</a>
+      </div>
+    </div>
+
+  </div>
+</div>

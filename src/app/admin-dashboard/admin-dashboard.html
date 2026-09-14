@@ -1,0 +1,141 @@
+<div class="admin-container" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <div class="header-section">
+    <h2>{{ currentLang === 'ar' ? 'لوحة إدارة المحتوى' : 'Content Management Dashboard' }}</h2>
+    <p>{{ currentLang === 'ar' ? 'مراجعة الطلبات وإدارة المطاعم المسجلة' : 'Review requests and manage registered restaurants' }}</p>
+  </div>
+
+  <!-- كارتات الإحصائيات -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>{{ restaurants.length + requests.length }}</h3>
+      <p>{{ currentLang === 'ar' ? 'إجمالي المطاعم والطلبات' : 'Total Items' }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>{{ requests.length }}</h3>
+      <p>{{ currentLang === 'ar' ? 'طلبات معلقة' : 'Pending Requests' }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>{{ restaurants.length }}</h3>
+      <p>{{ currentLang === 'ar' ? 'مطاعم نشطة' : 'Active Restaurants' }}</p>
+    </div>
+  </div>
+
+  <!-- التبويبات للتنقل -->
+  <div class="tabs-header">
+    <button class="tab-btn" [class.active]="activeTab === 'requests'" (click)="switchTab('requests')">
+      {{ currentLang === 'ar' ? 'طلبات الانضمام' : 'Join Requests' }} 
+      <span class="badge-count">{{ requests.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'restaurants'" (click)="switchTab('restaurants')">
+      {{ currentLang === 'ar' ? 'إدارة المطاعم' : 'Manage Restaurants' }}
+      <span class="badge-count">{{ restaurants.length }}</span>
+    </button>
+  </div>
+
+  <!-- جدول طلبات الانضمام -->
+  @if (activeTab === 'requests') {
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ currentLang === 'ar' ? 'الصورة' : 'Image' }}</th>
+            <th>{{ currentLang === 'ar' ? 'الاسم' : 'Name' }}</th>
+            <th>{{ currentLang === 'ar' ? 'النوع' : 'Type' }}</th>
+            <th>{{ currentLang === 'ar' ? 'المطبخ' : 'Cuisine' }}</th>
+            <th>{{ currentLang === 'ar' ? 'المنطقة' : 'Location' }}</th>
+            <th>{{ currentLang === 'ar' ? 'الهاتف' : 'Phone' }}</th>
+            <th>{{ currentLang === 'ar' ? 'الإجراء' : 'Actions' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (req of requests; track (req._id || req.id)) {
+            <tr>
+              <td>
+                <img [src]="getImageUrl(req.image)" (click)="openImageModal(req.image)" alt="restaurant" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; cursor: pointer;">
+              </td>
+              <td class="restaurant-name">{{ req.name }}</td>
+              <td>
+                <span class="type-badge" [class.home]="req.type === 'home_kitchen'">
+                  {{ req.type === 'home_kitchen' ? (currentLang === 'ar' ? 'بيتي' : 'Home') : (currentLang === 'ar' ? 'مطعم' : 'Restaurant') }}
+                </span>
+              </td>
+              <td>{{ req.cuisine }}</td>
+              <td>{{ req.location }}</td>
+              <td>{{ req.phone }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="approve-btn" (click)="approveRequest(req._id || req.id)">{{ currentLang === 'ar' ? 'قبول' : 'Approve' }}</button>
+                  <button class="reject-btn" (click)="rejectRequest(req._id || req.id)">{{ currentLang === 'ar' ? 'رفض' : 'Reject' }}</button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (requests.length === 0) {
+            <tr>
+              <td colspan="7" class="empty-text">{{ currentLang === 'ar' ? 'لا توجد طلبات معلقة حالياً' : 'No pending requests' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- جدول إدارة المطاعم المقبولة -->
+  @if (activeTab === 'restaurants') {
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ currentLang === 'ar' ? 'الصورة' : 'Image' }}</th>
+            <th>{{ currentLang === 'ar' ? 'الاسم' : 'Name' }}</th>
+            <th>{{ currentLang === 'ar' ? 'النوع' : 'Type' }}</th>
+            <th>{{ currentLang === 'ar' ? 'المطبخ' : 'Cuisine' }}</th>
+            <th>{{ currentLang === 'ar' ? 'المنطقة' : 'Location' }}</th>
+            <th>{{ currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+            <th>{{ currentLang === 'ar' ? 'الإجراء' : 'Actions' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rest of restaurants; track (rest._id || rest.id)) {
+            <tr>
+              <td>
+                <img [src]="getImageUrl(rest.image)" (click)="openImageModal(rest.image)" alt="restaurant" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; cursor: pointer;">
+              </td>
+              <td class="restaurant-name">{{ rest.name }}</td>
+              <td>
+                <span class="type-badge" [class.home]="rest.type === 'home_kitchen'">
+                  {{ rest.type === 'home_kitchen' ? (currentLang === 'ar' ? 'بيتي' : 'Home') : (currentLang === 'ar' ? 'مطعم' : 'Restaurant') }}
+                </span>
+              </td>
+              <td>{{ rest.cuisine }}</td>
+              <td>{{ rest.location }}</td>
+              <td>
+                <span class="status-badge approved">{{ currentLang === 'ar' ? 'نشط' : 'Active' }}</span>
+              </td>
+              <td>
+                <button class="delete-btn" (click)="deleteRestaurant(rest._id || rest.id)">
+                  {{ currentLang === 'ar' ? 'حذف' : 'Delete' }}
+                </button>
+              </td>
+            </tr>
+          }
+          @if (restaurants.length === 0) {
+            <tr>
+              <td colspan="7" class="empty-text">{{ currentLang === 'ar' ? 'لا توجد مطاعم مسجلة حتى الآن' : 'No registered restaurants' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- نافذة معاينة الصورة عند الضغط عليها -->
+  @if (selectedImage) {
+    <div class="image-modal-backdrop" (click)="closeImageModal()" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+      <div class="image-modal-content" style="position: relative; max-width: 90%; max-height: 90%;">
+        <img [src]="selectedImage" style="max-width: 100%; max-height: 80vh; border-radius: 8px;" />
+        <button (click)="closeImageModal()" style="position: absolute; top: -15px; right: -15px; background: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold;">✕</button>
+      </div>
+    </div>
+  }
+</div>

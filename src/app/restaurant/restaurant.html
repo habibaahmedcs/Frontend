@@ -1,0 +1,101 @@
+<div class="restaurants-page-container">
+  
+  <div class="page-header">
+    <h1>{{ currentLang === 'ar' ? 'دليل المطاعم حسب الدولة والمطبخ' : 'Restaurant Directory by Country & Cuisine' }}</h1>
+    <p>{{ currentLang === 'ar' ? 'استكشف مطابخ العالم المتوفرة في مصر' : 'Explore world cuisines available in Egypt' }}</p>
+  </div>
+
+  <div class="filter-buttons">
+    <div class="search-box-page">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="applySearch()"
+        [placeholder]="currentLang === 'ar' ? 'ابحث عن مطعم، دولة، أو مطبخ...' : 'Search for a restaurant, country, or cuisine...'">
+    </div>
+
+    <button [class.active]="selectedCuisine === 'all'" (click)="filterByCuisine('all')">
+      {{ currentLang === 'ar' ? 'الكل' : 'All' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'مصري'" (click)="filterByCuisine('مصري')">
+      {{ currentLang === 'ar' ? 'مصري' : 'Egyptian' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'سوري'" (click)="filterByCuisine('سوري')">
+      {{ currentLang === 'ar' ? 'سوري' : 'Syrian' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'لبناني'" (click)="filterByCuisine('لبناني')">
+      {{ currentLang === 'ar' ? 'لبناني' : 'Lebanese' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'فلسطيني'" (click)="filterByCuisine('فلسطيني')">
+      {{ currentLang === 'ar' ? 'فلسطيني' : 'Palestinian' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'يمني'" (click)="filterByCuisine('يمني')">
+      {{ currentLang === 'ar' ? 'يمني' : 'Yemeni' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'سعودي'" (click)="filterByCuisine('سعودي')">
+      {{ currentLang === 'ar' ? 'سعودي' : 'Saudi' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'جزائري'" (click)="filterByCuisine('جزائري')">
+      {{ currentLang === 'ar' ? 'جزائري' : 'Algerian' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'اردني'" (click)="filterByCuisine('اردني')">
+      {{ currentLang === 'ar' ? 'اردني' : 'Jordanian' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'مغربي'" (click)="filterByCuisine('مغربي')">
+      {{ currentLang === 'ar' ? 'مغربي' : 'Moroccan' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'إيطالي'" (click)="filterByCuisine('إيطالي')">
+      {{ currentLang === 'ar' ? 'إيطالي' : 'Italian' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'ياباني'" (click)="filterByCuisine('ياباني')">
+      {{ currentLang === 'ar' ? 'ياباني' : 'Japanese' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'صيني'" (click)="filterByCuisine('صيني')">
+      {{ currentLang === 'ar' ? 'صيني' : 'Chinese' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'كوري'" (click)="filterByCuisine('كوري')">
+      {{ currentLang === 'ar' ? 'كوري' : 'Korean' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'هندي'" (click)="filterByCuisine('هندي')">
+      {{ currentLang === 'ar' ? 'هندي' : 'Indian' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'تركي'" (click)="filterByCuisine('تركي')">
+      {{ currentLang === 'ar' ? 'تركي' : 'Turkish' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'أمريكي'" (click)="filterByCuisine('أمريكي')">
+      {{ currentLang === 'ar' ? 'أمريكي' : 'American' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'مكسيكي'" (click)="filterByCuisine('مكسيكي')">
+      {{ currentLang === 'ar' ? 'مكسيكي' : 'Mexican' }}
+    </button>
+    <button [class.active]="selectedCuisine === 'أخرى'" (click)="filterByCuisine('أخرى')">
+      {{ currentLang === 'ar' ? 'أخرى' : 'Other' }}
+    </button>
+  </div>
+
+  <div class="restaurants-grid">
+    @for (restaurant of filteredRestaurants; track restaurant.id) {
+      <div class="restaurant-card">
+        <div class="card-img-wrapper">
+          <img [src]="restaurant.image" [alt]="currentLang === 'ar' ? restaurant.nameAr : restaurant.nameEn">
+        </div>
+        <div class="card-body">
+          <h3>{{ currentLang === 'ar' ? restaurant.nameAr : restaurant.nameEn }}</h3>
+          <p class="card-subtext">
+            {{ currentLang === 'ar' ? restaurant.cuisineAr : restaurant.cuisineEn }} • 
+            {{ currentLang === 'ar' ? restaurant.locationAr : restaurant.locationEn }}
+          </p>
+          <div class="card-footer-row">
+            <span class="rating-badge">★ {{ restaurant.rating }}</span>
+            <button class="view-btn">{{ currentLang === 'ar' ? 'التفاصيل' : 'Details' }}</button>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <p>{{ currentLang === 'ar' ? 'لا توجد نتائج تطابق بحثك حالياً.' : 'No results found matching your search.' }}</p>
+      </div>
+    }
+  </div>
+
+</div>

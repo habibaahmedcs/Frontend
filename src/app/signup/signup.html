@@ -1,0 +1,66 @@
+<div class="auth-container"> 
+  <div class="auth-card">
+    <h2>حساب جديد</h2>
+    
+    <div *ngIf="errorMessage" style="color: #ff6b6b; margin-bottom: 15px; font-weight: bold;">
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="onRegister()">
+      <div class="form-group">
+        <label for="firstName">الاسم الأول</label>
+        <input 
+          type="text" 
+          id="firstName" 
+          [(ngModel)]="firstName" 
+          name="firstName" 
+          placeholder="أدخل اسمك الأول" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">الاسم الأخير</label>
+        <input 
+          type="text" 
+          id="lastName" 
+          [(ngModel)]="lastName" 
+          name="lastName" 
+          placeholder="أدخل اسمك الأخير" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">البريد الإلكتروني</label>
+        <input 
+          type="email" 
+          id="email" 
+          [(ngModel)]="email" 
+          name="email" 
+          placeholder="أدخل بريدك الإلكتروني" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">كلمة المرور</label>
+        <input 
+          type="password" 
+          id="password" 
+          [(ngModel)]="password" 
+          name="password" 
+          placeholder="أدخل كلمة المرور" 
+          required>
+      </div>
+
+      <button type="submit" class="auth-btn">
+        تسجيل
+      </button>
+    </form>
+
+    <div class="auth-links">
+      <p>
+        لديك حساب بالفعل؟ 
+        <a routerLink="/login">تسجيل الدخول</a>
+      </p>
+    </div>
+  </div>
+</div>

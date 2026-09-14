@@ -1,0 +1,127 @@
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-image: url('../../assets/images/5.png');
+  background-size: cover;
+  background-position: center;
+  margin: 0;
+  padding: 60px 0 20px 0;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.auth-card {
+  background: rgba(40, 6, 23, 0.41);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 20px 30px;
+  border-radius: 19px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 550px;
+  text-align: center;
+  height: auto;
+  margin-top: 0;
+}
+
+.auth-card h2 {
+  font-family: 'Cairo', sans-serif;
+  color: #e497c7;
+  margin-bottom: 20px;
+  font-size: 35px;
+  margin-top: 0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #e1b1b1;
+  font-size: 18px;
+  text-align: start;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  color: #333;
+}
+
+.form-group input:focus {
+  border: 2px solid #321a0b;
+  outline: none;
+  background-color: #fff;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 16px;
+  background-color: #bd689c;
+  color: #ffffff;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.auth-btn:hover {
+  background-color: #3e152f;
+  transform: translateY(-2px);
+}
+
+.auth-links {
+  color: #e1b1b1;
+  margin-top: 15px;
+}
+
+.auth-links a {
+  color: #e8d6ca;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.form_h {
+  font-size: 25px;
+  color: #f8c1df;
+  text-align: center;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.logo-en {
+  font-family: 'Kindage', sans-serif;
+  font-size: 48px;
+  color: #c00879;
+  text-shadow: 3px 3px 0px #ffdef2, 6px 6px 0px rgba(0, 0, 0, 0.4);
+  display: inline-block;
+  transform: translate(-5px, -15px); 
+}
+
+.logo-ar {
+  font-family: 'KufiArabic', sans-serif; 
+  font-weight: 900;
+  font-size: 70px;
+  color: #c00879;
+  text-shadow: 3px 3px 0px #ffdef2, 6px 6px 0px rgba(0, 0, 0, 0.4);
+  display: inline-block;
+  transform: translate(30px, -15px);
+}
