@@ -1,6 +1,13 @@
 <div class="form-container" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
   <h2>{{ currentLang === 'ar' ? 'طلب إضافة مطعم / مطبخ منزلي' : 'Register Restaurant / Home Kitchen' }}</h2>
 
+  @if (successMessage) {
+    <p>{{ successMessage }}</p>
+  }
+  @if (errorMessage) {
+    <p>{{ errorMessage }}</p>
+  }
+
   <form (ngSubmit)="onSubmit()">
     <div class="form-group">
       <label>{{ currentLang === 'ar' ? 'اسم المطعم / المطبخ' : 'Restaurant Name' }}</label>
@@ -40,15 +47,14 @@
     </div>
 
     @if (restaurant.cuisine === 'أخرى') {
-    <div class="form-group">
-      <label>{{ currentLang === 'ar' ? 'اكتب اسم الدولة أو المطبخ' : 'Enter Country or Cuisine Name' }}</label>
-      <input type="text" [(ngModel)]="restaurant.customCuisine" name="customCuisine" required>
-    </div>
+      <div class="form-group">
+        <label>{{ currentLang === 'ar' ? 'اكتب اسم الدولة أو المطبخ' : 'Enter Country or Cuisine Name' }}</label>
+        <input type="text" [(ngModel)]="restaurant.customCuisine" name="customCuisine" required>
+      </div>
     }
 
     <div class="form-group">
-      <label>{{ currentLang === 'ar' ? 'صورة شهادة الصحة (مطلوبة للمفتش)' : 'Health Certificate Image (Required)'
-        }}</label>
+      <label>{{ currentLang === 'ar' ? 'صورة شهادة الصحة (مطلوبة للمفتش)' : 'Health Certificate Image (Required)' }}</label>
       <input type="file" (change)="onFileSelected($event)" accept="image/*" required>
     </div>
 
@@ -62,8 +68,8 @@
       <input type="tel" [(ngModel)]="restaurant.phone" name="phone" required>
     </div>
 
-    <button type="submit" class="submit-btn">
-      {{ currentLang === 'ar' ? 'إرسال الطلب للمراجعة' : 'Submit Request' }}
+    <button type="submit" [disabled]="loading" class="submit-btn">
+      {{ loading ? (currentLang === 'ar' ? 'جاري الإرسال...' : 'Submitting...') : (currentLang === 'ar' ? 'إرسال الطلب للمراجعة' : 'Submit Request') }}
     </button>
   </form>
 </div>

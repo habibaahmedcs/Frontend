@@ -10,7 +10,7 @@
 
   <div class="nav-center">
     <a routerLink="/homefood" routerLinkActive="active">الأكل البيتي</a>
-    <a routerLink="/restaurant" routerLinkActive="active">المطاعم</a>
+    <a routerLink="/restaurants" routerLinkActive="active">المطاعم</a>
     <a routerLink="/about" routerLinkActive="active">من نحن</a> 
   </div>
 
@@ -35,15 +35,15 @@
           
           <div class="profile-menu">
             @if (isAdmin) {
-              <a routerLink="/admin-dashboard">لوحة التحكم</a>
+              <a routerLink="/admin">لوحة التحكم</a>
             }
 
-            @if (isApprovedOwner) {
-              <a routerLink="/manage-restaurant">إدارة مطعمي</a>
+            @if (isApprovedOwner || hasRejectedListing) {
+              <a routerLink="/vendor-dashboard">إدارة مطعمي</a>
             } @else if (hasPendingRequest) {
-              <a style="opacity: 0.6; cursor: not-allowed;">الطلب قيد المراجعة</a>
+              <a routerLink="/vendor-dashboard">الطلب قيد المراجعة</a>
             } @else {
-              <a routerLink="/add-restaurant">طلب انضمام مطعم</a>
+              <a routerLink="/aprove-restaurant">طلب انضمام مطعم</a>
             }
 
             <a routerLink="/profile">البروفايل</a>

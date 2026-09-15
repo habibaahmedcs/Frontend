@@ -1,8 +1,8 @@
 <div class="restaurants-page-container">
   
   <div class="page-header">
-    <h1>{{ currentLang === 'ar' ? 'دليل المطاعم حسب الدولة والمطبخ' : 'Restaurant Directory by Country & Cuisine' }}</h1>
-    <p>{{ currentLang === 'ar' ? 'استكشف مطابخ العالم المتوفرة في مصر' : 'Explore world cuisines available in Egypt' }}</p>
+    <h1>{{ currentLang === 'ar' ? pageTitleAr : pageTitleEn }}</h1>
+    <p>{{ currentLang === 'ar' ? pageSubtitleAr : pageSubtitleEn }}</p>
   </div>
 
   <div class="filter-buttons">
@@ -38,8 +38,8 @@
     <button [class.active]="selectedCuisine === 'جزائري'" (click)="filterByCuisine('جزائري')">
       {{ currentLang === 'ar' ? 'جزائري' : 'Algerian' }}
     </button>
-    <button [class.active]="selectedCuisine === 'اردني'" (click)="filterByCuisine('اردني')">
-      {{ currentLang === 'ar' ? 'اردني' : 'Jordanian' }}
+    <button [class.active]="selectedCuisine === 'أردني'" (click)="filterByCuisine('أردني')">
+      {{ currentLang === 'ar' ? 'أردني' : 'Jordanian' }}
     </button>
     <button [class.active]="selectedCuisine === 'مغربي'" (click)="filterByCuisine('مغربي')">
       {{ currentLang === 'ar' ? 'مغربي' : 'Moroccan' }}
@@ -77,7 +77,7 @@
     @for (restaurant of filteredRestaurants; track restaurant.id) {
       <div class="restaurant-card">
         <div class="card-img-wrapper">
-          <img [src]="restaurant.image" [alt]="currentLang === 'ar' ? restaurant.nameAr : restaurant.nameEn">
+            <img [src]="restaurant.image" [alt]="currentLang === 'ar' ? restaurant.nameAr : restaurant.nameEn" (error)="onImgError($event)">
         </div>
         <div class="card-body">
           <h3>{{ currentLang === 'ar' ? restaurant.nameAr : restaurant.nameEn }}</h3>
@@ -87,13 +87,15 @@
           </p>
           <div class="card-footer-row">
             <span class="rating-badge">★ {{ restaurant.rating }}</span>
-            <button class="view-btn">{{ currentLang === 'ar' ? 'التفاصيل' : 'Details' }}</button>
+            <button class="view-btn" (click)="viewDetails(restaurant)">
+              {{ currentLang === 'ar' ? 'التفاصيل' : 'Details' }}
+            </button>
           </div>
         </div>
       </div>
     } @empty {
       <div class="empty-state">
-        <p>{{ currentLang === 'ar' ? 'لا توجد نتائج تطابق بحثك حالياً.' : 'No results found matching your search.' }}</p>
+        <p>{{ errorMessage || (currentLang === 'ar' ? 'لا توجد نتائج تطابق بحثك حالياً.' : 'No results found matching your search.') }}</p>
       </div>
     }
   </div>

@@ -38,8 +38,8 @@
             <input type="text" formControlName="city" placeholder="القاهرة">
           </div>
 
-          <button type="submit" [disabled]="profileForm.invalid" class="btn-save">
-            حفظ التغييرات
+          <button type="submit" [disabled]="profileForm.invalid || savingProfile" class="btn-save">
+            {{ savingProfile ? 'جاري الحفظ...' : 'حفظ التغييرات' }}
           </button>
         </form>
       </div>
@@ -72,8 +72,8 @@
             <input type="password" formControlName="confirmPassword" placeholder="••••••••">
           </div>
 
-          <button type="submit" [disabled]="passwordForm.invalid" class="btn-secondary">
-            تحديث كلمة المرور
+          <button type="submit" [disabled]="passwordForm.invalid || savingPassword" class="btn-secondary">
+            {{ savingPassword ? 'جاري التحديث...' : 'تحديث كلمة المرور' }}
           </button>
         </form>
       </div>

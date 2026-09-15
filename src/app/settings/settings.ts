@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -14,11 +14,13 @@ import { AuthService } from '../service/auth.service';
 export class SettingsComponent implements OnInit {
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
-  
+
   user: any = null;
   profileSuccessMessage: string = '';
   passwordSuccessMessage: string = '';
   errorMessage: string = '';
+  savingProfile = false;
+  savingPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -35,52 +37,82 @@ export class SettingsComponent implements OnInit {
 
     this.passwordForm = this.fb.group({
       currentPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      newPassword: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required]
     });
 
-    this.loadUserData();
+    this.authService.currentUser$.subscribe((user) => {
+      this.user = user;
+      if (user) {
+        this.patchProfile(user);
+      }
+    });
+
+    this.authService.fetchProfile().subscribe({
+      next: (res) => {
+        const updatedUser = res?.data?.user;
+        if (updatedUser) {
+          this.user = updatedUser;
+          this.patchProfile(updatedUser);
+        }
+      },
+      error: () => this.loadUserData()
+    });
   }
 
   loadUserData(): void {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      this.user = JSON.parse(savedUser);
-      const fullName = this.user.name || `${this.user.fname || ''} ${this.user.lname || ''}`.trim();
-
-      this.profileForm.patchValue({
-        name: fullName,
-        email: this.user.email || '',
-        phone: this.user.phone || '',
-        city: this.user.city || ''
-      });
+    this.user = this.authService.getUserData();
+    if (this.user) {
+      this.patchProfile(this.user);
     }
   }
 
+  private patchProfile(user: any): void {
+    const fullName = user.name || `${user.firstName || user.fname || ''} ${user.lastName || user.lname || ''}`.trim();
+    this.profileForm.patchValue({
+      name: fullName,
+      email: user.email || '',
+      phone: user.phone || '',
+      city: user.city || ''
+    });
+  }
+
   updateProfile(): void {
-    if (this.profileForm.invalid) return;
+    if (this.profileForm.invalid) {
+      this.errorMessage = 'يرجى إدخال الاسم بالكامل';
+      return;
+    }
+    this.errorMessage = '';
+    this.profileSuccessMessage = '';
+    this.savingProfile = true;
 
-    const updatedData = {
-      ...this.user,
-      name: this.profileForm.get('name')?.value,
-      phone: this.profileForm.get('phone')?.value,
-      city: this.profileForm.get('city')?.value
-    };
+    const rawName = this.profileForm.get('name')?.value || '';
+    const nameParts = rawName.trim().split(/\s+/);
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || firstName;
 
-    const nameParts = updatedData.name.trim().split(' ');
-    updatedData.fname = nameParts[0] || '';
-    updatedData.lname = nameParts.slice(1).join(' ') || '';
+    const formData = new FormData();
+    formData.append('name', rawName);
+    formData.append('firstName', firstName);
+    formData.append('lastName', lastName);
+    formData.append('phone', this.profileForm.get('phone')?.value || '');
+    formData.append('city', this.profileForm.get('city')?.value || '');
 
-    // حفظ محلي فوري
-    localStorage.setItem('user', JSON.stringify(updatedData));
-    this.user = updatedData;
-    this.profileSuccessMessage = 'تم حفظ التغييرات بنجاح!';
-    setTimeout(() => this.profileSuccessMessage = '', 3000);
-
-    // إرسال للباك إند في حال وجود API
-    this.authService.updateProfile(updatedData).subscribe({
-      next: () => {},
-      error: (err: any) => console.log('Backend sync skipped/failed:', err)
+    this.authService.updateProfile(formData).subscribe({
+      next: (res) => {
+        this.savingProfile = false;
+        const updatedUser = res?.data?.user;
+        if (updatedUser) {
+          this.user = updatedUser;
+          this.patchProfile(updatedUser);
+        }
+        this.profileSuccessMessage = 'تم حفظ التغييرات بنجاح!';
+        setTimeout(() => this.profileSuccessMessage = '', 3000);
+      },
+      error: (err: any) => {
+        this.savingProfile = false;
+        this.errorMessage = err?.error?.message || 'فشل التحديث في قاعدة البيانات';
+      }
     });
   }
 
@@ -94,13 +126,17 @@ export class SettingsComponent implements OnInit {
       return;
     }
 
+    this.savingPassword = true;
     this.authService.changePassword({ currentPassword, newPassword }).subscribe({
       next: () => {
+        this.savingPassword = false;
         this.passwordSuccessMessage = 'تم تحديث كلمة المرور بنجاح!';
         this.passwordForm.reset();
         this.errorMessage = '';
+        setTimeout(() => this.passwordSuccessMessage = '', 3000);
       },
       error: (err: any) => {
+        this.savingPassword = false;
         this.errorMessage = err?.error?.message || 'حدث خطأ أثناء تغيير كلمة المرور';
       }
     });

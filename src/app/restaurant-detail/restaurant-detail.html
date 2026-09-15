@@ -1,125 +1,130 @@
-<div class="restaurant-page bg-light pb-5" dir="rtl" *ngIf="restaurant">
-  <!-- صورة الغلاف وتفاصيل المطعم في الهيدر -->
-  <div class="header-banner position-relative" [style.background-image]="'url(' + (restaurant.image || 'assets/default-banner.jpg') + ')'">
-    <div class="overlay"></div>
-    <div class="container position-relative pt-5">
-      <div class="card header-card p-4 rounded-4 shadow-sm border-0 bg-white">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-          <div>
-            <span class="badge bg-purple-light text-purple mb-2 px-3 py-2 rounded-pill fs-6">{{ restaurant.cuisine }}</span>
-            <h1 class="fw-bold mb-1 fs-2">{{ restaurant.name }}</h1>
-            <p class="text-muted mb-0"><i class="bi bi-geo-alt"></i> {{ restaurant.address }}</p>
-          </div>
-          <div class="d-flex gap-2">
-            <button class="btn btn-purple rounded-pill px-4" (click)="showReviewModal = true">
-              <i class="bi bi-star"></i> قيّم الآن
-            </button>
-            <a [href]="'tel:' + restaurant.phone" class="btn btn-outline-purple rounded-pill px-4">
-              <i class="bi bi-telephone"></i> اتصل للطلب
-            </a>
-          </div>
+<div class="rd-page" dir="rtl" *ngIf="restaurant">
+  <section class="rd-hero" [style.background-image]="'url(' + restaurant.coverImage + ')'"></section>
+
+  <div class="rd-shell">
+    <article class="rd-card">
+      <div class="rd-card-top">
+        <div class="rd-identity">
+          <span class="rd-badge">{{ restaurant.cuisine }}</span>
+          <h1>{{ restaurant.name }}</h1>
+          <p class="rd-area">{{ restaurant.address }}</p>
         </div>
-
-        <div class="row text-center mt-4 pt-3 border-top g-3">
-          <div class="col-4">
-            <div class="fw-bold fs-5 text-warning">★ {{ restaurant.rating || '4.7' }}</div>
-            <small class="text-muted">{{ restaurant.reviews?.length || 0 }} تقييم</small>
-          </div>
-          <div class="col-4 border-end border-start">
-            <div class="fw-bold fs-6">{{ restaurant.workingHours || '8:00 ص - 11:00 م' }}</div>
-            <small class="text-muted">ساعات العمل</small>
-          </div>
-          <div class="col-4">
-            <div class="fw-bold fs-6" dir="ltr">{{ restaurant.phone || '01012345678' }}</div>
-            <small class="text-muted">رقم الهاتف</small>
-          </div>
-        </div>
-
-        <p class="mt-4 text-secondary mb-0 fs-6 lh-lg">
-          {{ restaurant.description || 'أشهر محل كشري في مصر منذ عام 1950، نقدم الكشري الأصيل بالصلصة الحارة والدقة المقلية الطازجة يومياً. جودة لا تضاهى وأسعار في المتناول.' }}
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- شريط التبويبات (Tabs) -->
-  <div class="container mt-4">
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-      <div class="d-flex border-bottom bg-white text-center">
-        <button class="tab-btn flex-fill py-3 border-0 bg-transparent fw-bold" 
-                [class.active]="activeTab === 'menu'" 
-                (click)="activeTab = 'menu'">
-          قائمة الطعام
-        </button>
-        <button class="tab-btn flex-fill py-3 border-0 bg-transparent fw-bold" 
-                [class.active]="activeTab === 'photos'" 
-                (click)="activeTab = 'photos'">
-          الصور
-        </button>
-        <button class="tab-btn flex-fill py-3 border-0 bg-transparent fw-bold" 
-                [class.active]="activeTab === 'reviews'" 
-                (click)="activeTab = 'reviews'">
-          التقييمات
-        </button>
-      </div>
-
-      <div class="p-4 bg-white">
-        <!-- 1. قائمة الطعام (المينيو) -->
-        <div *ngIf="activeTab === 'menu'">
-          <div *ngFor="let category of objectKeys(categorizedMenu)" class="mb-5">
-            <h4 class="fw-bold mb-4 text-purple">{{ category }}</h4>
-            <div class="row g-4">
-              <div class="col-md-6" *ngFor="let item of categorizedMenu[category]">
-                <div class="card h-100 border-0 bg-light-purple p-3 rounded-4 d-flex flex-row align-items-center gap-3">
-                  <img [src]="item.imageUrl || 'assets/default-food.jpg'" class="rounded-3 menu-img" alt="{{ item.name }}">
-                  <div class="flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-baseline">
-                      <h5 class="fw-bold mb-1 fs-6">{{ item.name }}</h5>
-                      <span class="fw-bold text-purple fs-6">{{ item.price }} ج.م</span>
-                    </div>
-                    <p class="text-muted small mb-0">{{ item.description }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. التقييمات -->
-        <div *ngIf="activeTab === 'reviews'">
-          <button class="btn btn-outline-dashed-purple w-100 py-3 rounded-4 mb-4 fw-bold" (click)="showReviewModal = true">
-            + أضف تقييمك
+        <div class="rd-actions">
+          <button class="rd-btn-fill" type="button" (click)="openReviewModal()" *ngIf="!isOwner">
+            ★ قيم الآن
           </button>
+          <a *ngIf="isOwner" routerLink="/vendor-dashboard" class="rd-btn-fill">إدارة قائمتي</a>
+          <a class="rd-btn-outline" [href]="'tel:' + restaurant.phone">اتصل للطلب</a>
+        </div>
+      </div>
 
-          <div class="d-flex flex-column gap-3">
-            <div *ngFor="let rev of restaurant.reviews" class="card border-0 bg-light p-3 rounded-4">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="avatar-circle bg-purple text-white fw-bold">{{ rev.userName[0] }}</div>
-                  <div>
-                    <h6 class="fw-bold m-0">{{ rev.userName }}</h6>
-                    <div class="text-warning small">★ {{ rev.rating }}</div>
-                  </div>
+      <div class="rd-meta">
+        <div class="rd-meta-item">
+          <strong class="rd-rating">★ {{ restaurant.rating || 0 }}</strong>
+          <span>{{ restaurant.ratingsCount || 0 }} تقييم</span>
+        </div>
+        <div class="rd-meta-item">
+          <strong>{{ restaurant.workingHours || '—' }}</strong>
+          <span>ساعات العمل</span>
+        </div>
+        <div class="rd-meta-item">
+          <strong dir="ltr">{{ restaurant.phone || '—' }}</strong>
+          <span>رقم الهاتف</span>
+        </div>
+      </div>
+
+      <p class="rd-desc" *ngIf="restaurant.description">{{ restaurant.description }}</p>
+    </article>
+
+    <section class="rd-tabs-card">
+      <div class="rd-tabs">
+        <button type="button" [class.active]="activeTab === 'menu'" (click)="activeTab = 'menu'">قائمة الطعام</button>
+        <button type="button" [class.active]="activeTab === 'photos'" (click)="activeTab = 'photos'">الصور</button>
+        <button type="button" [class.active]="activeTab === 'reviews'" (click)="activeTab = 'reviews'">التقييمات</button>
+      </div>
+
+      <div class="rd-tab-body" *ngIf="activeTab === 'menu'">
+        <div *ngIf="objectKeys(categorizedMenu).length === 0" class="rd-empty">
+          لم تتم إضافة قائمة طعام بعد. تواصل عبر رقم الهاتف للاطلاع على الأصناف والأسعار.
+        </div>
+        <div *ngFor="let category of objectKeys(categorizedMenu)" class="rd-menu-group">
+          <h3>{{ category }}</h3>
+          <div class="rd-menu-grid">
+            <div class="rd-menu-item" *ngFor="let item of categorizedMenu[category]">
+              <img [src]="item.imageUrl || 'assets/images/egyptian.png'" [alt]="item.name" (error)="onImgError($event)">
+              <div class="rd-menu-copy">
+                <div class="rd-menu-head">
+                  <h4>{{ item.name }}</h4>
+                  <span>{{ item.price }} ج.م</span>
                 </div>
-                <small class="text-muted">{{ rev.date | date:'yyyy-MM-dd' }}</small>
+                <p>{{ item.description }}</p>
               </div>
-
-              <div class="d-flex gap-2 mb-2" *ngIf="rev.tags">
-                <span *ngFor="let tag of rev.tags" class="badge bg-purple-light text-purple rounded-pill small">{{ tag }}</span>
-              </div>
-
-              <p class="text-secondary mb-0 small">{{ rev.comment }}</p>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- 3. الصور -->
-        <div *ngIf="activeTab === 'photos'" class="row g-3">
-          <div class="col-md-4" *ngFor="let img of restaurant.gallery || [restaurant.image]">
-            <img [src]="img" class="img-fluid rounded-4 shadow-sm w-100 gallery-img" alt="معرض الصور">
-          </div>
+      <div class="rd-tab-body" *ngIf="activeTab === 'photos'">
+        <div class="rd-empty" *ngIf="!restaurant.gallery?.length">لم يتم رفع صور للمعرض بعد.</div>
+        <div class="rd-gallery" *ngIf="restaurant.gallery?.length">
+          <img *ngFor="let img of restaurant.gallery" [src]="img" alt="معرض الصور" (error)="onImgError($event)">
         </div>
+      </div>
+
+      <div class="rd-tab-body" *ngIf="activeTab === 'reviews'">
+        <button *ngIf="!isOwner" class="rd-add-review" type="button" (click)="openReviewModal()">+ أضف تقييمك</button>
+        <p *ngIf="isOwner" class="rd-empty">لا يمكنك تقييم قائمتك الخاصة.</p>
+        <p *ngIf="reviewMessage" class="rd-ok">{{ reviewMessage }}</p>
+        <p *ngIf="reviewError" class="rd-err">{{ reviewError }}</p>
+
+        <div class="rd-review" *ngFor="let rev of restaurant.reviews">
+          <div class="rd-review-top">
+            <div class="rd-reviewer">
+              <div class="rd-avatar">
+                <img *ngIf="rev.userAvatar" [src]="rev.userAvatar" [alt]="rev.userName">
+                <ng-container *ngIf="!rev.userAvatar">{{ (rev.userName || 'م')[0] }}</ng-container>
+              </div>
+              <div>
+                <h4>{{ rev.userName }}</h4>
+                <div class="rd-stars">
+                  <span *ngFor="let on of starArray(rev.rating)" [class.on]="on">★</span>
+                </div>
+              </div>
+            </div>
+            <small>{{ rev.date | date:'yyyy-MM-dd' }}</small>
+          </div>
+          <div class="rd-tags" *ngIf="rev.tags?.length">
+            <span *ngFor="let tag of rev.tags">{{ tag }}</span>
+          </div>
+          <p>{{ rev.comment }}</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="review-modal-backdrop" *ngIf="showReviewModal" (click)="closeReviewModal()">
+    <div class="review-modal-card" (click)="$event.stopPropagation()">
+      <h4>أضف تقييمك</h4>
+      <label>التقييم</label>
+      <div class="star-pick">
+        <button type="button" *ngFor="let star of stars" class="star-btn" [class.active]="reviewRating >= star" (click)="reviewRating = star">★</button>
+      </div>
+      <label>تعليقك</label>
+      <textarea rows="3" [(ngModel)]="reviewComment" placeholder="كيف كانت التجربة؟"></textarea>
+      <label>وسوم التقييم</label>
+      <div class="tag-row">
+        <button type="button" *ngFor="let tag of availableTags" class="tag-chip" [class.active]="reviewTags.includes(tag)" (click)="toggleTag(tag)">{{ tag }}</button>
+      </div>
+      <p class="rd-err" *ngIf="reviewError">{{ reviewError }}</p>
+      <div class="modal-actions">
+        <button type="button" class="rd-btn-fill" (click)="submitReview()">حفظ التقييم</button>
+        <button type="button" class="rd-btn-outline" (click)="closeReviewModal()">إلغاء</button>
       </div>
     </div>
   </div>
+</div>
+
+<div class="rd-page rd-empty-page" dir="rtl" *ngIf="!restaurant && loadError">
+  <p>{{ loadError }}</p>
+  <a routerLink="/home">العودة للرئيسية</a>
 </div>

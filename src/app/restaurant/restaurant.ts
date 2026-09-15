@@ -1,92 +1,163 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ResService } from '../service/res-service';
+import { API_ORIGIN, listingDetailPath, resolveImageUrl } from '../utils/image-url';
 
 @Component({
   selector: 'app-restaurant',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './restaurant.html',
-  styleUrl: './restaurant.css'
+  styleUrls: ['./restaurant.css']
 })
-export class RestaurantComponent implements OnInit {
+export class RestaurantComponent implements OnInit, OnDestroy {
+  private resService = inject(ResService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   currentLang: string = 'ar';
   searchQuery: string = '';
   selectedCuisine: string = 'all';
+  listingType: 'restaurant' | 'home_kitchen' | 'all' = 'restaurant';
+  pageTitleAr = 'دليل المطاعم حسب الدولة والمطبخ';
+  pageTitleEn = 'Restaurant Directory by Country & Cuisine';
+  pageSubtitleAr = 'استكشف مطابخ العالم المتوفرة في مصر';
+  pageSubtitleEn = 'Explore world cuisines available in Egypt';
+  errorMessage = '';
 
-  restaurants: any[] = [];
+  allRestaurants: any[] = [];
   filteredRestaurants: any[] = [];
-
-  constructor(private restaurantService: ResService) {}
+  serverBaseUrl: string = `${API_ORIGIN}/`;
+  private subs = new Subscription();
 
   ngOnInit(): void {
-    this.loadRestaurants();
+    this.currentLang = localStorage.getItem('siteLang') || 'ar';
+
+    this.route.data.subscribe((data) => {
+      this.listingType = data['listingType'] || 'restaurant';
+      this.pageTitleAr = data['titleAr'] || this.pageTitleAr;
+      this.pageTitleEn = data['titleEn'] || this.pageTitleEn;
+      if (this.listingType === 'home_kitchen') {
+        this.pageSubtitleAr = 'مطابخ منزلية وأكل بيتي من كل المحافظات';
+        this.pageSubtitleEn = 'Home kitchens and homemade dishes across Egypt';
+      }
+    });
+
+    this.subs.add(
+      this.route.queryParamMap.subscribe((params) => {
+        this.searchQuery = params.get('q') || '';
+        this.selectedCuisine = params.get('cuisine') || 'all';
+        this.loadRestaurants();
+      })
+    );
+
+    this.subs.add(
+      this.resService.listingChanges$.subscribe((listing) => {
+        if (listing) this.loadRestaurants();
+      })
+    );
   }
 
-  private extractArray(res: any): any[] {
-    if (Array.isArray(res)) return res;
-    if (Array.isArray(res?.data)) return res.data;
-    if (Array.isArray(res?.data?.restaurants)) return res.data.restaurants;
-    if (Array.isArray(res?.restaurants)) return res.restaurants;
-    return [];
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 
   loadRestaurants(): void {
-    const service = this.restaurantService as any;
-    const request$ = service.getApprovedRestaurants?.() ?? service.getRestaurants?.();
-
-    if (!request$) {
-      console.error('ResService does not expose a restaurant list method.');
-      return;
-    }
-
-    request$.subscribe({
+    this.errorMessage = '';
+    const searchBoth = this.listingType !== 'home_kitchen' && !!this.searchQuery.trim();
+    const type = this.listingType === 'home_kitchen'
+      ? 'home_kitchen'
+      : searchBoth
+        ? undefined
+        : 'restaurant';
+    this.resService.getApprovedRestaurants({
+      type,
+      q: this.searchQuery || undefined,
+      cuisine: this.selectedCuisine !== 'all' ? this.selectedCuisine : undefined
+    }).subscribe({
       next: (res: any) => {
-        const rawList = this.extractArray(res);
-        this.restaurants = rawList.map((item: any) => ({
+        const data = res?.data?.restaurants || res?.data || res || [];
+        this.allRestaurants = (Array.isArray(data) ? data : []).map((item: any) => ({
+          ...item,
           id: item._id || item.id,
-          nameAr: item.name,
-          nameEn: item.name,
-          cuisineAr: item.cuisine,
-          cuisineEn: item.cuisine,
-          locationAr: item.location,
-          locationEn: item.location,
-          rating: item.rating || 4.5,
-          image: this.getImageUrl(item.image)
+          type: item.type,
+          nameAr: item.nameAr || item.name,
+          nameEn: item.nameEn || item.name,
+          cuisineAr: item.cuisineAr || item.cuisine,
+          cuisineEn: item.cuisineEn || item.cuisine,
+          locationAr: item.locationAr || item.location,
+          locationEn: item.locationEn || item.location,
+          rating: item.averageRating || item.rating || 0,
+          image: this.getImageUrl(item.thumbnail || item.imageUrl || item.image)
         }));
-        this.filteredRestaurants = [...this.restaurants];
+        this.applyFilter();
       },
-      error: (err: any) => console.error('خطأ في تحميل المطاعم:', err)
+      error: () => {
+        this.errorMessage = this.currentLang === 'ar'
+          ? 'تعذر تحميل الدليل حالياً. تأكد أن السيرفر يعمل.'
+          : 'Could not load listings. Make sure the server is running.';
+        this.allRestaurants = [];
+        this.filteredRestaurants = [];
+      }
     });
   }
 
-  getImageUrl(imagePath: string): string {
-    if (!imagePath) return 'assets/default-restaurant.png';
-    if (imagePath.startsWith('http')) return imagePath;
-    if (imagePath.startsWith('restaurants/')) return `http://localhost:3000/uploads/${imagePath}`;
-    return `http://localhost:3000/uploads/restaurants/${imagePath}`;
+  getImageUrl(path: string): string {
+    return resolveImageUrl(path);
+  }
+
+  onImgError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img && !img.src.includes('egyptian.png')) {
+      img.src = 'assets/images/egyptian.png';
+    }
   }
 
   filterByCuisine(cuisine: string): void {
     this.selectedCuisine = cuisine;
-    this.applyFilters();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        q: this.searchQuery || null,
+        cuisine: cuisine === 'all' ? null : cuisine
+      },
+      queryParamsHandling: 'merge'
+    });
   }
 
   applySearch(): void {
-    this.applyFilters();
+    this.applyFilter();
   }
 
-  applyFilters(): void {
-    this.filteredRestaurants = this.restaurants.filter(r => {
-      const matchesCuisine = this.selectedCuisine === 'all' || r.cuisineAr === this.selectedCuisine;
-      const query = this.searchQuery.toLowerCase();
-      const matchesSearch = !query || 
-        r.nameAr.toLowerCase().includes(query) || 
-        r.cuisineAr.toLowerCase().includes(query) || 
-        r.locationAr.toLowerCase().includes(query);
+  applyFilter(): void {
+    let result = [...this.allRestaurants];
+    const cuisine = this.selectedCuisine;
 
-      return matchesCuisine && matchesSearch;
-    });
+    if (cuisine !== 'all') {
+      const needle = cuisine.toLowerCase();
+      result = result.filter((item) =>
+        [item.cuisine, item.cuisineAr, item.cuisineEn]
+          .filter(Boolean)
+          .some((value: string) => value.toLowerCase().includes(needle))
+      );
+    }
+
+    if (this.searchQuery.trim() !== '') {
+      const query = this.searchQuery.toLowerCase().trim();
+      result = result.filter((item) =>
+        [item.nameAr, item.nameEn, item.cuisineAr, item.cuisineEn, item.locationAr, item.locationEn, item.description]
+          .filter(Boolean)
+          .some((value: string) => value.toLowerCase().includes(query))
+      );
+    }
+
+    this.filteredRestaurants = result;
+  }
+
+  viewDetails(restaurant: any): void {
+    this.router.navigate(listingDetailPath(restaurant));
   }
 }

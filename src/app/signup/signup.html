@@ -2,8 +2,8 @@
   <div class="auth-card">
     <h2>حساب جديد</h2>
     
-    <div *ngIf="errorMessage" style="color: #ff6b6b; margin-bottom: 15px; font-weight: bold;">
-      {{ errorMessage }}
+    <div *ngIf="successMessage" style="color: #2e7d32; margin-bottom: 15px; font-weight: bold;">
+      {{ successMessage }}
     </div>
 
     <form (ngSubmit)="onRegister()">

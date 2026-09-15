@@ -2,12 +2,18 @@
   <div class="header-section">
     <h2>{{ currentLang === 'ar' ? 'لوحة إدارة المحتوى' : 'Content Management Dashboard' }}</h2>
     <p>{{ currentLang === 'ar' ? 'مراجعة الطلبات وإدارة المطاعم المسجلة' : 'Review requests and manage registered restaurants' }}</p>
+    @if (feedback) {
+      <p>{{ feedback }}</p>
+    }
+    @if (errorMessage) {
+      <p>{{ errorMessage }}</p>
+    }
   </div>
 
   <!-- كارتات الإحصائيات -->
   <div class="stats-grid">
     <div class="stat-card">
-      <h3>{{ restaurants.length + requests.length }}</h3>
+      <h3>{{ restaurants.length + homeKitchens.length + requests.length }}</h3>
       <p>{{ currentLang === 'ar' ? 'إجمالي المطاعم والطلبات' : 'Total Items' }}</p>
     </div>
     <div class="stat-card">
@@ -18,6 +24,10 @@
       <h3>{{ restaurants.length }}</h3>
       <p>{{ currentLang === 'ar' ? 'مطاعم نشطة' : 'Active Restaurants' }}</p>
     </div>
+    <div class="stat-card">
+      <h3>{{ homeKitchens.length }}</h3>
+      <p>{{ currentLang === 'ar' ? 'مطابخ منزلية' : 'Home Kitchens' }}</p>
+    </div>
   </div>
 
   <!-- التبويبات للتنقل -->
@@ -27,8 +37,12 @@
       <span class="badge-count">{{ requests.length }}</span>
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'restaurants'" (click)="switchTab('restaurants')">
-      {{ currentLang === 'ar' ? 'إدارة المطاعم' : 'Manage Restaurants' }}
+      {{ currentLang === 'ar' ? 'مطاعم نشطة' : 'Active Restaurants' }}
       <span class="badge-count">{{ restaurants.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'homes'" (click)="switchTab('homes')">
+      {{ currentLang === 'ar' ? 'مطابخ منزلية' : 'Home Kitchens' }}
+      <span class="badge-count">{{ homeKitchens.length }}</span>
     </button>
   </div>
 
@@ -44,6 +58,7 @@
             <th>{{ currentLang === 'ar' ? 'المطبخ' : 'Cuisine' }}</th>
             <th>{{ currentLang === 'ar' ? 'المنطقة' : 'Location' }}</th>
             <th>{{ currentLang === 'ar' ? 'الهاتف' : 'Phone' }}</th>
+            <th>{{ currentLang === 'ar' ? 'الشهادة الصحية' : 'Health Certificate' }}</th>
             <th>{{ currentLang === 'ar' ? 'الإجراء' : 'Actions' }}</th>
           </tr>
         </thead>
@@ -51,7 +66,7 @@
           @for (req of requests; track (req._id || req.id)) {
             <tr>
               <td>
-                <img [src]="getImageUrl(req.image)" (click)="openImageModal(req.image)" alt="restaurant" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; cursor: pointer;">
+                <img [src]="getImageUrl(req.thumbnail || req.imageUrl || req.image)" (click)="openImageModal(req.coverImage || req.imageUrl || req.image)" alt="restaurant" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; cursor: pointer;">
               </td>
               <td class="restaurant-name">{{ req.name }}</td>
               <td>
@@ -63,6 +78,15 @@
               <td>{{ req.location }}</td>
               <td>{{ req.phone }}</td>
               <td>
+                @if (req.healthCertificate) {
+                  <button class="approve-btn" type="button" (click)="openImageModal(req.healthCertificate)">
+                    {{ currentLang === 'ar' ? 'عرض الصورة' : 'View' }}
+                  </button>
+                } @else {
+                  <span class="done-text">-</span>
+                }
+              </td>
+              <td>
                 <div class="action-buttons">
                   <button class="approve-btn" (click)="approveRequest(req._id || req.id)">{{ currentLang === 'ar' ? 'قبول' : 'Approve' }}</button>
                   <button class="reject-btn" (click)="rejectRequest(req._id || req.id)">{{ currentLang === 'ar' ? 'رفض' : 'Reject' }}</button>
@@ -72,7 +96,7 @@
           }
           @if (requests.length === 0) {
             <tr>
-              <td colspan="7" class="empty-text">{{ currentLang === 'ar' ? 'لا توجد طلبات معلقة حالياً' : 'No pending requests' }}</td>
+              <td colspan="8" class="empty-text">{{ currentLang === 'ar' ? 'لا توجد طلبات معلقة حالياً' : 'No pending requests' }}</td>
             </tr>
           }
         </tbody>
@@ -99,7 +123,7 @@
           @for (rest of restaurants; track (rest._id || rest.id)) {
             <tr>
               <td>
-                <img [src]="getImageUrl(rest.image)" (click)="openImageModal(rest.image)" alt="restaurant" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; cursor: pointer;">
+                <img [src]="getImageUrl(rest.thumbnail || rest.imageUrl || rest.image)" (click)="openImageModal(rest.coverImage || rest.imageUrl || rest.image)" alt="restaurant" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; cursor: pointer;">
               </td>
               <td class="restaurant-name">{{ rest.name }}</td>
               <td>
@@ -122,6 +146,52 @@
           @if (restaurants.length === 0) {
             <tr>
               <td colspan="7" class="empty-text">{{ currentLang === 'ar' ? 'لا توجد مطاعم مسجلة حتى الآن' : 'No registered restaurants' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (activeTab === 'homes') {
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ currentLang === 'ar' ? 'الصورة' : 'Image' }}</th>
+            <th>{{ currentLang === 'ar' ? 'الاسم' : 'Name' }}</th>
+            <th>{{ currentLang === 'ar' ? 'النوع' : 'Type' }}</th>
+            <th>{{ currentLang === 'ar' ? 'المطبخ' : 'Cuisine' }}</th>
+            <th>{{ currentLang === 'ar' ? 'المنطقة' : 'Location' }}</th>
+            <th>{{ currentLang === 'ar' ? 'الحالة' : 'Status' }}</th>
+            <th>{{ currentLang === 'ar' ? 'الإجراء' : 'Actions' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rest of homeKitchens; track (rest._id || rest.id)) {
+            <tr>
+              <td>
+                <img [src]="getImageUrl(rest.thumbnail || rest.imageUrl || rest.image)" (click)="openImageModal(rest.coverImage || rest.imageUrl || rest.image)" alt="home" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; cursor: pointer;">
+              </td>
+              <td class="restaurant-name">{{ rest.name }}</td>
+              <td>
+                <span class="type-badge home">{{ currentLang === 'ar' ? 'بيتي' : 'Home' }}</span>
+              </td>
+              <td>{{ rest.cuisine }}</td>
+              <td>{{ rest.location }}</td>
+              <td>
+                <span class="status-badge approved">{{ currentLang === 'ar' ? 'نشط' : 'Active' }}</span>
+              </td>
+              <td>
+                <button class="delete-btn" (click)="deleteRestaurant(rest._id || rest.id)">
+                  {{ currentLang === 'ar' ? 'حذف' : 'Delete' }}
+                </button>
+              </td>
+            </tr>
+          }
+          @if (homeKitchens.length === 0) {
+            <tr>
+              <td colspan="7" class="empty-text">{{ currentLang === 'ar' ? 'لا توجد مطابخ منزلية مسجلة حتى الآن' : 'No home kitchens yet' }}</td>
             </tr>
           }
         </tbody>

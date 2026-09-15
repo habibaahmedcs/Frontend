@@ -231,6 +231,8 @@
 .card-img-wrapper {
   height: 150px;
   width: 100%;
+  overflow: hidden;
+  background: #f3e4ec;
 }
 
 .card-img-wrapper img {

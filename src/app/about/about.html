@@ -1,0 +1,69 @@
+<div class="about-page" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <section class="about-hero">
+    <div class="about-hero-card">
+      <span>{{ currentLang === 'ar' ? 'دليل النكهات المصرية' : 'A directory of Egyptian flavors' }}</span>
+      <h1>{{ currentLang === 'ar' ? 'عن مذاق مصر' : 'About Taste of Egypt' }}</h1>
+      <p>
+        {{ currentLang === 'ar'
+          ? 'مذاق مصر منصة دليل تجمع المطاعم الأصيلة ومطابخ البيت في مكان واحد: القوائم، الصور، أرقام التوصيل، وساعات العمل، مع تقييمات حقيقية من الزوار.'
+          : 'Taste of Egypt is a directory that brings authentic restaurants and home kitchens together: menus, photos, delivery numbers, working hours, and verified visitor reviews.' }}
+      </p>
+    </div>
+  </section>
+
+  <section class="about-support">
+    <article>
+      <strong>{{ currentLang === 'ar' ? 'للمطابخ المنزلية' : 'For home kitchens' }}</strong>
+      <p>{{ currentLang === 'ar' ? 'نساعد صانعي الأكل البيتي على عرض وصفاتهم بصور حقيقية ورقم توصيل واضح.' : 'We help home cooks showcase real photos and a clear delivery number.' }}</p>
+    </article>
+    <article>
+      <strong>{{ currentLang === 'ar' ? 'للمطاعم المحلية' : 'For local restaurants' }}</strong>
+      <p>{{ currentLang === 'ar' ? 'واجهة أنيقة للقائمة والمعرض والتقييمات بدون سلة شراء أو دفع إلكتروني.' : 'An elegant menu, gallery, and reviews — no cart and no online checkout.' }}</p>
+    </article>
+    <article>
+      <strong>{{ currentLang === 'ar' ? 'للزوار' : 'For visitors' }}</strong>
+      <p>{{ currentLang === 'ar' ? 'اكتشف النكهة، اقرأ التقييمات، واتصل للمكان مباشرة.' : 'Discover a flavor, read reviews, and call the place directly.' }}</p>
+    </article>
+  </section>
+
+  <section class="about-grid">
+    <article>
+      <h2>{{ currentLang === 'ar' ? 'رؤيتنا' : 'Our vision' }}</h2>
+      <p>
+        {{ currentLang === 'ar'
+          ? 'ندعم الأكل البيتي والمطاعم التقليدية في كل محافظات مصر، ليصل الزائر إلى نكهة موثوقة دون سلة شراء أو دفع إلكتروني — التواصل يتم مباشرة مع المكان.'
+          : 'We support home kitchens and traditional restaurants across Egypt, so visitors can find trusted flavors without a cart or checkout — contact the place directly.' }}
+      </p>
+    </article>
+    <article>
+      <h2>{{ currentLang === 'ar' ? 'أكل البيت' : 'Home kitchens' }}</h2>
+      <p>
+        {{ currentLang === 'ar'
+          ? 'نبرز الشيفات المنزليين بقوائم واضحة وصور حقيقية ورقم للتوصيل، بعد مراجعة الإدارة لضمان المصداقية.'
+          : 'We highlight home chefs with clear menus, real photos, and a delivery number, after admin review for credibility.' }}
+      </p>
+    </article>
+    <article>
+      <h2>{{ currentLang === 'ar' ? 'المطاعم' : 'Restaurants' }}</h2>
+      <p>
+        {{ currentLang === 'ar'
+          ? 'دليل مصنّف حسب المطبخ والمنطقة، مع شارة نوع المطبخ وساعات العمل وتقييم الزوار.'
+          : 'A catalog by cuisine and area, with cuisine badges, working hours, and visitor ratings.' }}
+      </p>
+    </article>
+    <article>
+      <h2>{{ currentLang === 'ar' ? 'تقييمات موثوقة' : 'Verified reviews' }}</h2>
+      <p>
+        {{ currentLang === 'ar'
+          ? 'لا يمكن لصاحب المكان تقييم قائمته الخاصة. المتوسط يُحسب من التقييمات الفعلية المعتمدة في قاعدة البيانات.'
+          : 'Listing owners cannot rate their own place. Average ratings are calculated from real approved database reviews.' }}
+      </p>
+    </article>
+  </section>
+
+  <section class="about-cta">
+    <a routerLink="/restaurants">{{ currentLang === 'ar' ? 'تصفح المطاعم' : 'Browse restaurants' }}</a>
+    <a routerLink="/homefood" class="ghost">{{ currentLang === 'ar' ? 'أكل البيت' : 'Home food' }}</a>
+    <a routerLink="/aprove-restaurant" class="ghost">{{ currentLang === 'ar' ? 'أضف مكانك' : 'Add your listing' }}</a>
+  </section>
+</div>

@@ -4,24 +4,27 @@
     <div class="hero-card">
       <span class="sub-title">{{ currentLang === 'ar' ? 'نكهة كل منطقة في مكان واحد' : 'Flavors of every area in one place' }}</span>
       <h1>{{ currentLang === 'ar' ? 'اكتشف أطعم المأكولات والمطاعم في مصر' : 'Discover the Best Food & Restaurants in Egypt' }}</h1>
-      <p>{{ currentLang === 'ar' ? 'من مطاعمك المفضلة إلى أطباق البيت الدافئة، ابحث واكتشف واطلب بطريقتك.' : 'From your favorite restaurants to warm homemade dishes, search and order your way.' }}</p>
+      <p>{{ currentLang === 'ar' ? 'من مطاعمك المفضلة إلى أطباق البيت الدافئة، ابحث واكتشف وتواصل برقم التوصيل مباشرة.' : 'From your favorite restaurants to warm homemade dishes, search and call the delivery number directly.' }}</p>
       
       <div class="search-box">
         <button type="button" (click)="onSearch()" class="search-btn">
           {{ currentLang === 'ar' ? 'ابحث الآن' : 'Search Now' }}
         </button>
-        <input 
-          type="text" 
-          [(ngModel)]="searchQuery" 
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
           (keyup.enter)="onSearch()"
-          [placeholder]="currentLang === 'ar' ? 'ابحث باسم المطعم أو الدولة أو المطبخ...' : 'Search by restaurant, country, or cuisine...'">
+          [placeholder]="currentLang === 'ar' ? 'ابحث باسم المطعم أو أكل البيت أو المطبخ...' : 'Search by restaurant, home-cooked food, or cuisine...'">
       </div>
+      @if (searchMessage) {
+        <p>{{ searchMessage }}</p>
+      }
     </div>
 
     <div class="aprove-restaurant-card">
       <h3>{{ currentLang === 'ar' ? 'صاحب مطعم أو شيف بيت؟' : 'Own a Restaurant or Home Kitchen?' }}</h3>
-      <p>{{ currentLang === 'ar' ? 'سجل معنا الآن واعرض أكلاتك لآلاف العملاء يومياً' : 'Join us now and display your dishes to thousands of customers daily' }}</p>
-      <a routerLink="/aprove-restaurant" routerLinkActive="active" class="add-btn-link">
+      <p>{{ currentLang === 'ar' ? 'سجل معنا الآن واعرض أكلاتك لآلاف الزوار يومياً' : 'Join us now and display your dishes to thousands of visitors daily' }}</p>
+      <a routerLink="/aprove-restaurant" routerLinkActive="active" class="add-btn add-btn-link">
         {{ currentLang === 'ar' ? 'أضف مطعمك الآن' : 'Add Your Restaurant' }}
       </a>
     </div>
@@ -34,26 +37,26 @@
     </div>
 
     <div class="categories-grid">
-      <div class="category-card" [routerLink]="['/restaurant']" [queryParams]="{ cuisine: 'مصري' }">
+      <div class="category-card" [routerLink]="['/restaurants']" [queryParams]="{ cuisine: 'مصري' }">
         <img src="../assets/images/egyptian.png" alt="Egyptian">
         <span>{{ currentLang === 'ar' ? 'مصري' : 'Egyptian' }}</span>
       </div>
-      <div class="category-card" [routerLink]="['/restaurant']" [queryParams]="{ cuisine: 'سوري' }">
+      <div class="category-card" [routerLink]="['/restaurants']" [queryParams]="{ cuisine: 'سوري' }">
         <img src="../assets/images/syrian.png" alt="Syrian">
         <span>{{ currentLang === 'ar' ? 'سوري' : 'Syrian' }}</span>
       </div>
-      <div class="category-card" [routerLink]="['/restaurant']" [queryParams]="{ cuisine: 'إيطالي' }">
+      <div class="category-card" [routerLink]="['/restaurants']" [queryParams]="{ cuisine: 'إيطالي' }">
         <img src="../assets/images/italian.png" alt="Italian">
         <span>{{ currentLang === 'ar' ? 'إيطالي' : 'Italian' }}</span>
       </div>
-      <div class="category-card" [routerLink]="['/restaurant']" [queryParams]="{ cuisine: 'ياباني' }">
+      <div class="category-card" [routerLink]="['/restaurants']" [queryParams]="{ cuisine: 'ياباني' }">
         <img src="../assets/images/japanese.png" alt="Japanese">
         <span>{{ currentLang === 'ar' ? 'ياباني' : 'Japanese' }}</span>
       </div>
-      <div class="category-card more-card" routerLink="/restaurant">
+      <div class="category-card more-card" routerLink="/homefood">
         <div class="more-content">
           <span class="more-icon">➔</span>
-          <span>{{ currentLang === 'ar' ? 'عرض المزيد' : 'View More' }}</span>
+          <span>{{ currentLang === 'ar' ? 'أكل البيت' : 'Home food' }}</span>
         </div>
       </div>
     </div>
@@ -61,14 +64,14 @@
 
   <section class="top-rated-section">
     <div class="section-title-right">
-      <h2>{{ currentLang === 'ar' ? 'الأكثر طلباً' : 'Most Popular' }}</h2>
+      <h2>{{ currentLang === 'ar' ? 'الأعلى تقييماً من المطاعم' : 'Top-rated restaurants' }}</h2>
     </div>
 
     <div class="cards-grid-4">
       @for (item of topRestaurants; track item.id) {
         <div class="restaurant-card">
           <div class="card-img-wrapper">
-            <img [src]="item.image" [alt]="currentLang === 'ar' ? item.nameAr : item.nameEn">
+            <img [src]="item.image" [alt]="currentLang === 'ar' ? item.nameAr : item.nameEn" (error)="onImgError($event)">
           </div>
           <div class="card-body">
             <h3>{{ currentLang === 'ar' ? item.nameAr : item.nameEn }}</h3>
@@ -78,8 +81,55 @@
             </p>
             <div class="card-footer-row">
               <span class="rating-badge">★ {{ item.rating }}</span>
-              <a [routerLink]="['/restaurant']" class="details-link">
+              <a
+                class="details-link"
+                [routerLink]="detailsLink(item)">
                 {{ currentLang === 'ar' ? 'عرض التفاصيل' : 'View Details' }}
+              </a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="top-rated-section">
+    <div class="section-title-right">
+      <h2>{{ currentLang === 'ar' ? 'الأعلى تقييماً من أكل البيت' : 'Top-rated home-cooked food' }}</h2>
+    </div>
+
+    <div class="cards-grid-4">
+      @for (item of topHomeFood; track item.id) {
+        <div class="restaurant-card">
+          <div class="card-img-wrapper">
+            <img [src]="item.image" [alt]="currentLang === 'ar' ? item.nameAr : item.nameEn" (error)="onImgError($event)">
+          </div>
+          <div class="card-body">
+            <h3>{{ currentLang === 'ar' ? item.nameAr : item.nameEn }}</h3>
+            <p class="card-subtext">
+              {{ currentLang === 'ar' ? item.cuisineAr : item.cuisineEn }} • 
+              {{ currentLang === 'ar' ? item.locationAr : item.locationEn }}
+            </p>
+            <div class="card-footer-row">
+              <span class="rating-badge">★ {{ item.rating }}</span>
+              <a
+                class="details-link"
+                [routerLink]="detailsLink(item)">
+                {{ currentLang === 'ar' ? 'عرض التفاصيل' : 'View Details' }}
+              </a>
+            </div>
+          </div>
+        </div>
+      }
+      @if (topHomeFood.length === 0) {
+        <div class="restaurant-card">
+          <div class="card-body">
+            <h3>{{ currentLang === 'ar' ? 'قريباً أكل البيت' : 'Home-cooked listings coming soon' }}</h3>
+            <p class="card-subtext">{{ currentLang === 'ar' ? 'عندما تتم الموافقة على المطابخ المنزلية ستظهر الأعلى تقييماً هنا.' : 'Approved home kitchens will appear here by rating.' }}</p>
+            <div class="card-footer-row">
+              <span class="rating-badge">★</span>
+              <a routerLink="/homefood" class="details-link">
+                {{ currentLang === 'ar' ? 'تصفح أكل البيت' : 'Browse home food' }}
               </a>
             </div>
           </div>

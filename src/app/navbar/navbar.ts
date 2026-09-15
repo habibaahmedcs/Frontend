@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../service/auth.service'; // تأكد من المسار الصحيح
+import { AuthService } from '../service/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -20,18 +20,25 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isAdmin = false;
   isApprovedOwner = false;
   hasPendingRequest = false;
+  hasRejectedListing = false;
 
   private authSub!: Subscription;
 
   ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.authService.fetchProfile().subscribe({ error: () => undefined });
+    }
+
     this.authSub = this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user && this.authService.isLoggedIn();
 
       if (user) {
-        this.userName = user.name || user.username || user.firstName || 'مستخدم';
+        const ownerStatus = user.ownerStatus;
+        this.userName = user.firstName || user.name || 'مستخدم';
         this.isAdmin = user.role === 'admin';
-        this.isApprovedOwner = user.role === 'owner' && user.ownerStatus === 'approved';
-        this.hasPendingRequest = user.role === 'owner' && user.ownerStatus === 'pending';
+        this.isApprovedOwner = user.role === 'vendor' || ownerStatus === 'approved';
+        this.hasPendingRequest = ownerStatus === 'pending' && !this.isApprovedOwner;
+        this.hasRejectedListing = ownerStatus === 'rejected';
       } else {
         this.resetUserState();
       }
@@ -49,6 +56,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.isAdmin = false;
     this.isApprovedOwner = false;
     this.hasPendingRequest = false;
+    this.hasRejectedListing = false;
   }
 
   ngOnDestroy(): void {

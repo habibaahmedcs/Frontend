@@ -2,41 +2,52 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home';
 import { LoginComponent } from './login/login';
 import { SignupComponent } from './signup/signup';
-import { SettingsComponent } from './settings/settings';
-import { ProfileComponent } from './profile/profile';
 import { RestaurantComponent } from './restaurant/restaurant';
-import { RestaurantDetail } from './restaurant-detail/restaurant-detail';
-import { NavbarComponent } from './navbar/navbar';
 import { AproveRestaurantComponent } from './aprove-restaurant/aprove-restaurant';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard';
-import { VendorDashboard } from './vendor-dashboard/vendor-dashboard';
+import { VendorDashboardComponent } from './vendor-dashboard/vendor-dashboard';
+import { ProfileComponent } from './profile/profile';
+import { SettingsComponent } from './settings/settings';
+import { AboutComponent } from './about/about';
 import { adminGuard } from './admin.guard';
+import { authGuard } from './auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
-  { path: 'settings', component: SettingsComponent },
-  { path: 'profile', component: ProfileComponent },
-  
-  // صفحة قائمة المطاعم
-  { path: 'restaurant', component: RestaurantComponent },
-  
-  // صفحة طلب انضمام/إضافة مطعم
-  { path: 'aprove-restaurant', component: AproveRestaurantComponent },
-  { path: 'add-restaurant', redirectTo: 'aprove-restaurant', pathMatch: 'full' },
-
-  { path: 'resturant', redirectTo: 'restaurant', pathMatch: 'full' },
-  { path: 'restaurant-detail/:id', component: RestaurantDetail },
-  { path: 'navbar', component: NavbarComponent },
-  { 
-    path: 'admin-dashboard', 
-    component: AdminDashboardComponent, 
-    canActivate: [adminGuard] 
+  { path: 'about', component: AboutComponent },
+  {
+    path: 'restaurants',
+    component: RestaurantComponent,
+    data: { listingType: 'restaurant', titleAr: 'دليل المطاعم حسب الدولة والمطبخ', titleEn: 'Restaurant Directory by Country & Cuisine' }
   },
-  { path: 'vendor-dashboard', component: VendorDashboard },
-  { path: 'homefood', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'about', redirectTo: 'home', pathMatch: 'full' },
+  {
+    path: 'homefood',
+    component: RestaurantComponent,
+    data: { listingType: 'home_kitchen', titleAr: 'أكل البيت', titleEn: 'Home-cooked Food' }
+  },
+  { path: 'aprove-restaurant', component: AproveRestaurantComponent, canActivate: [authGuard] },
+  { path: 'add-restaurant', redirectTo: 'aprove-restaurant', pathMatch: 'full' },
+  {
+    path: 'restaurant/:id',
+    loadComponent: () => import('./restaurant-detail/restaurant-detail').then(m => m.RestaurantDetailComponent)
+  },
+  {
+    path: 'home-made/:id',
+    loadComponent: () => import('./restaurant-detail/restaurant-detail').then(m => m.RestaurantDetailComponent)
+  },
+  {
+    path: 'restaurant-detail/:id',
+    loadComponent: () => import('./restaurant-detail/restaurant-detail').then(m => m.RestaurantDetailComponent)
+  },
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [adminGuard] },
+  { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [adminGuard] },
+  { path: 'vendor-dashboard', component: VendorDashboardComponent, canActivate: [authGuard] },
+  { path: 'add-listing', redirectTo: 'vendor-dashboard', pathMatch: 'full' },
+  { path: 'manage-restaurant', redirectTo: 'vendor-dashboard', pathMatch: 'full' },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: 'home' }
 ];

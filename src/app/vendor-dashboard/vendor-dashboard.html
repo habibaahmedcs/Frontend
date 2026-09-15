@@ -1,73 +1,216 @@
-<div class="container my-5 RTL text-right" dir="rtl">
-  <h2 class="mb-4 text-purple fw-bold">إدارة صفحة المطعم والمينيو</h2>
+<div class="vendor-container" dir="rtl">
 
-  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div class="header-section">
+    <h2>إدارة صفحة المطعم</h2>
+    <p>حدّث البيانات الأساسية، قائمة الطعام، والصور ثم انشر كل قسم على حدة ليظهر للزوار</p>
+  </div>
 
-  <form [formGroup]="restaurantForm" (ngSubmit)="saveRestaurantDetails()">
-    
-    <!-- البيانات الأساسية -->
-    <div class="card shadow-sm p-4 mb-4 rounded-4 border-0">
-      <h4 class="fw-bold mb-3">تفاصيل المعومات العامة</h4>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">رقم الهاتف للتواصل</label>
-          <input type="text" formControlName="phone" class="form-control" placeholder="01012345678">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">ساعات العمل</label>
-          <input type="text" formControlName="workingHours" class="form-control" placeholder="8:00 ص - 11:00 م">
-        </div>
-        <div class="col-md-12">
-          <label class="form-label">العنوان والتفاصيل</label>
-          <input type="text" formControlName="address" class="form-control" placeholder="المعادي، القاهرة">
-        </div>
-        <div class="col-md-12">
-          <label class="form-label">وصف المطعم (عن المطعم)</label>
-          <textarea formControlName="description" class="form-control" rows="3" placeholder="أشهر محل كشري في مصر..."></textarea>
-        </div>
-      </div>
+  @if (restaurantStatus === 'pending') {
+    <div class="status-alert pending">
+      <span>⏳ طلب انضمام مطعمك قيد المراجعة حالياً من قبل الإدارة. ستتمكن من النشر فور القبول.</span>
     </div>
+  }
 
-    <!-- إدارة المينيو -->
-    <div class="card shadow-sm p-4 mb-4 rounded-4 border-0">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="fw-bold m-0">قائمة الطعام (المينيو)</h4>
-        <button type="button" class="btn btn-outline-purple" (click)="addMenuItem()">+ إضافة طبق جديد</button>
-      </div>
+  @if (isRejected) {
+    <div class="status-alert rejected">
+      <span>تم رفض المطعم بواسطة الإدارة</span>
+    </div>
+  }
 
-      <div formArrayName="menuItems">
-        <div *ngFor="let item of menuItems.controls; let i=index" [formGroupName]="i" class="border p-3 mb-3 rounded-3 bg-light position-relative">
-          <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" (click)="removeMenuItem(i)">حذف</button>
-          
+  @if (isAdminDeleted) {
+    <div class="status-alert deleted">
+      <span>تم حذف المطعم بواسطة الإدارة</span>
+    </div>
+  }
+
+  @if (restaurantStatus === 'approved') {
+    <div class="status-alert approved">
+      <span>🎉 مبروك! مطعمك معتمد ونشط حالياً على المنصة.</span>
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert-success-custom">
+      {{ successMessage }}
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="alert alert-danger rounded-3 mb-4">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <!-- حالة التحميل لمنع ظهور شاشة بيضاء -->
+  @if (fetchingData) {
+    <div class="card-section text-center py-5">
+      <div class="spinner-border text-primary mb-3" role="status"></div>
+      <p class="mb-0">جاري تحميل بيانات مطعمك...</p>
+    </div>
+  } @else if (restaurantId) {
+    <fieldset [disabled]="isLocked">
+
+      <form [formGroup]="restaurantForm" (ngSubmit)="saveBasicInfo()">
+        <div class="card-section">
+          <h4 class="card-title">المعلومات الأساسية والغلاف</h4>
+
           <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label">اسم الطبق</label>
-              <input type="text" formControlName="name" class="form-control" placeholder="كشري صغير">
+            <div class="col-md-6">
+              <label class="form-label">اسم القائمة</label>
+              <input type="text" formControlName="name" class="form-control" placeholder="مثال: موري سوشي">
             </div>
-            <div class="col-md-3">
-              <label class="form-label">القسم</label>
-              <select formControlName="category" class="form-select">
-                <option value="الأطباق الرئيسية">الأطباق الرئيسية</option>
-                <option value="الإضافات">الإضافات</option>
-                <option value="المشروبات">المشروبات</option>
-                <option value="الحلويات">الحلويات</option>
+
+            <div class="col-md-6">
+              <label class="form-label">نوع المطبخ (الشارة)</label>
+              <select formControlName="cuisine" class="form-select">
+                @for (c of cuisineOptions; track c) {
+                  <option [value]="c">{{ c }}</option>
+                }
               </select>
             </div>
-            <div class="col-md-3">
-              <label class="form-label">السعر (ج.م)</label>
-              <input type="number" formControlName="price" class="form-control" placeholder="18">
+
+            <div class="col-md-6">
+              <label class="form-label">المنطقة / المدينة</label>
+              <input type="text" formControlName="location" class="form-control" placeholder="مثال: المعادي">
             </div>
+
+            <div class="col-md-6">
+              <label class="form-label">رقم الهاتف للتوصيل</label>
+              <input type="text" formControlName="phone" class="form-control" placeholder="01512345678">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">ساعات العمل</label>
+              <input type="text" formControlName="workingHours" class="form-control" placeholder="مثال: 1:00 م - 11:00 م">
+            </div>
+
             <div class="col-md-12">
-              <label class="form-label">الوصف</label>
-              <input type="text" formControlName="description" class="form-control" placeholder="حجم فردي صغير مع صلصة وخل">
+              <label class="form-label">الوصف الكامل</label>
+              <textarea formControlName="description" class="form-control" rows="3" placeholder="أكتب نبذة عن وجباتك وما يميز مطعمك..."></textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">صورة الغلاف (خلفية الهيدر العلوية)</label>
+              <input type="file" (change)="onCoverSelected($event)" accept="image/*" class="form-control" [disabled]="isLocked">
+              @if (currentCoverUrl) {
+                <div class="image-preview-box">
+                  <span class="text-muted fs-6">الغلاف الحالي:</span>
+                  <img [src]="getImageUrl(currentCoverUrl)" alt="Cover" class="preview-img wide">
+                </div>
+              }
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">صورة الكارت الخارجية (المصغّرة)</label>
+              <input type="file" (change)="onThumbSelected($event)" accept="image/*" class="form-control" [disabled]="isLocked">
+              @if (currentThumbUrl) {
+                <div class="image-preview-box">
+                  <span class="text-muted fs-6">صورة الكارت:</span>
+                  <img [src]="getImageUrl(currentThumbUrl)" alt="Thumbnail" class="preview-img">
+                </div>
+              }
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <button type="submit" [disabled]="loading" class="btn btn-purple btn-lg w-100 rounded-pill">
-      {{ loading ? 'جاري الحفظ...' : 'حفظ ونشر التعديلات' }}
-    </button>
-  </form>
+          <button type="submit" [disabled]="savingBasic || !canPublish" class="btn btn-purple btn-lg w-100">
+            {{ savingBasic ? 'جاري النشر...' : 'نشر' }}
+          </button>
+        </div>
+      </form>
+
+      <div class="card-section" [formGroup]="restaurantForm">
+        <h4 class="card-title">قائمة الطعام</h4>
+        <div class="category-row">
+          <input type="text" class="form-control" [(ngModel)]="newCategory" [ngModelOptions]="{standalone: true}" placeholder="اسم القسم مثل: سوشي، رامن، ساشيمي" [disabled]="isLocked">
+          <button type="button" class="btn btn-outline-purple" (click)="addCategory()" [disabled]="isLocked">إضافة قسم</button>
+        </div>
+        <div class="category-pills">
+          @for (cat of menuCategories; track cat) {
+            <span class="cat-pill">
+              {{ cat }}
+              <button type="button" (click)="removeCategory(cat)" [disabled]="isLocked">×</button>
+            </span>
+          }
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="card-title m-0" style="border: none; padding: 0;">أصناف القائمة</h4>
+          <button type="button" class="btn btn-outline-purple" (click)="addMenuItem()" [disabled]="isLocked">+ إضافة طبق جديد</button>
+        </div>
+
+        <div formArrayName="menuItems">
+          @for (item of menuItems.controls; track $index; let i = $index) {
+            <div [formGroupName]="i" class="menu-item-card">
+              <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-3" (click)="removeMenuItem(i)" [disabled]="isLocked">حذف</button>
+
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">اسم الطبق</label>
+                  <input type="text" formControlName="name" class="form-control" placeholder="اسم الوجبة">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">اسم القسم</label>
+                  <select formControlName="category" class="form-select">
+                    @for (cat of menuCategories; track cat) {
+                      <option [value]="cat">{{ cat }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">السعر (ج.م)</label>
+                  <input type="number" formControlName="price" class="form-control" placeholder="00">
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label">المكونات / الوصف</label>
+                  <input type="text" formControlName="description" class="form-control" placeholder="المكونات والتفاصيل">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">صورة الطبق</label>
+                  <input type="file" accept="image/*" class="form-control" (change)="onMenuImageSelected(i, $event)" [disabled]="isLocked">
+                  @if (item.get('imageUrl')?.value) {
+                    <img class="preview-img tiny" [src]="getImageUrl(item.get('imageUrl')?.value)" alt="item">
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <button type="button" (click)="saveMenu()" [disabled]="savingMenu || !canPublish" class="btn btn-purple btn-lg w-100">
+          {{ savingMenu ? 'جاري النشر...' : 'نشر' }}
+        </button>
+      </div>
+
+      <div class="card-section">
+        <h4 class="card-title">الصور</h4>
+        <label class="form-label">ارفع صور العرض الخاصة بالمطعم</label>
+        <input type="file" (change)="onGallerySelected($event)" accept="image/*" class="form-control" multiple [disabled]="isLocked">
+        <div class="gallery-keep">
+          @for (img of galleryKeep; track img) {
+            <div class="gallery-keep-item">
+              <img [src]="getImageUrl(img)" alt="gallery">
+              <button type="button" class="btn btn-sm btn-danger" (click)="removeKeptGallery(img)" [disabled]="isLocked">حذف</button>
+            </div>
+          }
+        </div>
+        <button type="button" (click)="saveGallery()" [disabled]="savingGallery || !canPublish" class="btn btn-purple btn-lg w-100">
+          {{ savingGallery ? 'جاري النشر...' : 'نشر' }}
+        </button>
+      </div>
+
+    </fieldset>
+
+    @if (!isLocked) {
+      <div class="card-section danger-zone">
+        <h4 class="card-title">حذف المطعم</h4>
+        <p>حذف قائمتك يخفيها عن الزوار بعد التأكيد.</p>
+        <button type="button" class="btn btn-danger" (click)="deleteListing()" [disabled]="deleting">
+          {{ deleting ? 'جاري الحذف...' : 'حذف المطعم' }}
+        </button>
+      </div>
+    }
+  } @else {
+    <div class="card-section text-center py-4">
+      <p class="text-muted mb-0">لا توجد قائمة مرتبطة بحسابك بعد. أرسل طلب انضمام أولاً.</p>
+    </div>
+  }
 </div>
